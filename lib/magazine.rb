@@ -1,38 +1,43 @@
 class Magazine
-    attr_accessor :name , :category
-    @@all=[]
-    def initialize (name,category)
-    @name=name #string
-    @category=category #string
-    @@all << self
-    @articles=[]
+    attr_accessor :name, :category
+  
+    @@all = []
+  
+    def initialize(name, category)
+      @name = name
+      @category = category
+      @@all << self
     end
-    def name
-     @name
-    end
-    def category
-     @category
-    end
+  
     def self.all
-        @@all
+      @@all
     end
+  
     def contributors
-        Article.all.select { |article| article.magazine == self }.map(&:author)
+      Article.all
+            .select { |article| article.magazine == self }
+            .map { |article| article.author }
+            .uniq
     end
-    def add_article(article)
-        @articles << article
-    end
-    def article_titles
-        @articles.map(&:title)
-    end
-    def contributing_authors
-        authors = Hash.new(0)
-        @articles.each do |article|
-          authors[article.author] += 1
-        end
-        authors.keys.select { |author| authors[author] > 2 }
-    end
+  
     def self.find_by_name(name)
-        all.find { |magazine| magazine.name == name }
+      @@all.find { |magazine| magazine.name == name }
     end
-end
+  
+    def article_titles
+      Article.all
+             .select { |article| article.magazine == self }
+             .map { |article| article.title }
+    end
+  
+    def contributing_authors
+      authors_counts = Hash.new(0)
+      Article.all.each do |article|
+        if article.magazine == self
+          authors_counts[article.author] += 1
+        end
+      end
+      authors_counts.select { |author, count| count > 2 }.keys
+    end
+  end
+  
